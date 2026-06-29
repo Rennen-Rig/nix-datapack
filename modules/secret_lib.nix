@@ -47,27 +47,33 @@ rec {
         { argument1, argument2, ... }:
         checkDensityFunction argument1 && checkDensityFunction argument2
       );
+      minecraft_dfs =
+        (verifySimilar verifyTwoArgs [
+          "add"
+          "mul"
+          "min"
+          "max"
+        ])
+        // (verifySimilar verifyOneArg [
+          "interpolated"
+          "flat_cache"
+          "cache_2d"
+          "cache_once"
+          "cache_all_in_cell"
+          "abs"
+          "square"
+          "cube"
+          "half_negative"
+          "quater_negative"
+          "squeeze"
+          "invert"
+        ]);
     in
-    (verifySimilar verifyTwoArgs [
-      "add"
-      "mul"
-      "min"
-      "max"
-    ])
-    // (verifySimilar verifyOneArg [
-      "interpolated"
-      "flat_cache"
-      "cache_2d"
-      "cache_once"
-      "cache_all_in_cell"
-      "abs"
-      "square"
-      "cube"
-      "half_negative"
-      "quater_negative"
-      "squeeze"
-      "invert"
-    ]);
+    minecraft_dfs
+    // (lib.mapAttrs' (name: value: {
+      name = "minecraft:${name}";
+      inherit value;
+    }) minecraft_dfs);
 
   checkDensityFunction =
     df:
@@ -107,10 +113,14 @@ rec {
     |> (builtins.concatStringsSep "\n\n");
 
   makeMCMeta =
-    pack_config:
+    { description, ... }@pack_config:
     let
       mcmeta_file = writers.writeJSON "pack.mcmeta" {
-        format = 10;
+        pack = {
+          inherit description;
+          min_format = 0;
+          max_format = 1000;
+        };
       };
     in
     ''

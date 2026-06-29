@@ -9,7 +9,7 @@
     {
       lib = {
         mkPack =
-          { name }@pack_config:
+          { name, description }@pack_config:
           pack_data:
           flake-parts.lib.mkFlake { inherit inputs; } {
             systems = [
@@ -22,7 +22,7 @@
               { self', pkgs, ... }:
               {
                 packages.default = pkgs.stdenv.mkDerivation {
-                  name = "Pack";
+                  inherit name;
 
                   # we don't *really* need this I think?
                   src = ./.;
